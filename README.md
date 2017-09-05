@@ -37,9 +37,8 @@ curl -v 'http://localhost:8080/person/1'
 curl -d '{"name":"Jack Doe","age":"16"}' -H 'Content-Type: application/json' -v 'http://localhost:8080/person'
 ```
 
-### License
-This sample released under version 2.0 of the [Apache License][].
+### Copyright
+This project was forked from https://github.com/poutsma/webflux-functional-demo by Arjen Poutsma.
+The original project is released under version 2.0 of the [Apache License][].
 
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0
-
-
