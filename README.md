@@ -9,8 +9,17 @@ It consists of the following types:
 | `PersonRepository`      | Reactive repository for `Person`              |
 | `DummyPersonRepository` | Dummy implementation of `PersonRepository`    |
 | `PersonHandler`         | Web handler that exposes a `PersonRepository` |
+| `PersonRouter`          | Provides a functional `RouterFunction`        |
+| `PersonController`       | A reactive `RestController`                   |
 | `Server`                | Contains a `main` method to start the server  |
-| `Client`                | Contains a `main` method to start the client  |
+
+### Spring Context - or not
+In the main method in `Server` there are three ways to start the application:
+1. __`ControllerConfiguration`__: Spring Context + request processing with `PersonController`
+2. __`RoutingConfiguration`__: Spring Context + request processing with `RouterFunction`
+3. __standalone__: get HttpHandler directly from RouterFunction, no Spring Context
+
+Additionally you can choose with what server to start, see the next two points.
 
 ### Running the Reactor Netty server
  - Build using maven
@@ -22,13 +31,9 @@ It consists of the following types:
  - Build using maven
  - Run the `org.springframework.samples.web.reactive.function.Server` class
 
-### Running the Client
- - Build using maven
- - Run the `org.springframework.samples.web.reactive.function.Client` class
- 
 ### Sample curl commands
 
-Instead of running the client, here are some sample `curl` commands that access resources exposed
+Instead of using a Rest-Client of your choice, here are some sample `curl` commands that access resources exposed
 by this sample:
 
 ```sh
