@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package org.springframework.demo.webflux;
+package org.springframework.demo.webflux.persistence;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
  * @author Arjen Poutsma
  */
+@Service
 public class DummyPersonRepository implements PersonRepository {
 
 	private static final Log logger = LogFactory.getLog(DummyPersonRepository.class);

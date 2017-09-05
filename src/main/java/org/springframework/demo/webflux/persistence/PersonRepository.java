@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.demo.webflux;
+package org.springframework.demo.webflux.persistence;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

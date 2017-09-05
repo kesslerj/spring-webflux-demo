@@ -1,15 +1,20 @@
-package org.springframework.demo.webflux;
+package org.springframework.demo.webflux.rest.controller;
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
+import org.springframework.demo.webflux.persistence.Person;
+import org.springframework.demo.webflux.persistence.PersonRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/person")
@@ -28,12 +33,20 @@ public class PersonController {
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Mono<Void> savePerson(@RequestBody Mono<Person> personMono) {
+		System.out.println("POST in controller");
 		return this.repository.savePerson(personMono);
 	}
 
 	@GetMapping("/{id}")
 	public Mono<Person> getPerson(@PathVariable int id) {
-		return this.repository.getPerson(id);
+		return this.repository.getPerson(id)
+				.switchIfEmpty(Mono.error(new NotFoundException()));
+	}
+
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public void handle(NotFoundException ex) {
+
 	}
 
 }

@@ -16,29 +16,24 @@
 
 package org.springframework.demo.webflux;
 
+import static org.springframework.web.reactive.function.server.RouterFunctions.toHttpHandler;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
-import reactor.ipc.netty.http.server.HttpServer;
-
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.http.HttpMethod;
+import org.springframework.demo.webflux.config.ControllerConfiguration;
+import org.springframework.demo.webflux.persistence.DummyPersonRepository;
+import org.springframework.demo.webflux.persistence.PersonRepository;
+import org.springframework.demo.webflux.rest.routing.PersonHandler;
+import org.springframework.demo.webflux.rest.routing.PersonRouter;
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
 import org.springframework.http.server.reactive.ServletHttpHandlerAdapter;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
-import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
-import static org.springframework.web.reactive.function.server.RequestPredicates.method;
-import static org.springframework.web.reactive.function.server.RequestPredicates.path;
-import static org.springframework.web.reactive.function.server.RouterFunctions.nest;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
-import static org.springframework.web.reactive.function.server.RouterFunctions.toHttpHandler;
+import reactor.ipc.netty.http.server.HttpServer;
 
 public class Server {
 
@@ -49,8 +44,10 @@ public class Server {
 	public static void main(String[] args) throws Exception {
 		Server server = new Server();
 
-		HttpHandler httpHandler = server.applicationContext();
-//		HttpHandler httpHandler = server.standalone();
+		// HttpHandler httpHandler = server.applicationContext(RoutingConfiguration.class);
+		HttpHandler httpHandler = server.applicationContext(ControllerConfiguration.class);
+		// HttpHandler httpHandler = server.standalone();
+
 		server.startReactorServer(httpHandler);
 //		server.startTomcatServer(httpHandler);
 
@@ -79,20 +76,14 @@ public class Server {
 		PersonRepository repository = new DummyPersonRepository();
 		PersonHandler handler = new PersonHandler(repository);
 
-		RouterFunction<?> route = nest(path("/person"),
-				nest(accept(APPLICATION_JSON),
-						route(GET("/{id}"), handler::getPerson)
-								.andRoute(method(HttpMethod.GET), handler::allPeople)
-				).andRoute(POST("/").and(contentType(APPLICATION_JSON)), handler::savePerson));
+		RouterFunction<?> route = PersonRouter.routerFunction(handler);
 		return toHttpHandler(route);
 	}
 
-	public HttpHandler applicationContext() {
+	public HttpHandler applicationContext(Class configurationClass) {
 		AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(RoutingConfiguration.class);
-		return WebHttpHandlerBuilder.applicationContext(applicationContext)
-				.build();
-
+				new AnnotationConfigApplicationContext(configurationClass);
+		return WebHttpHandlerBuilder.applicationContext(applicationContext).build();
 	}
 
 }

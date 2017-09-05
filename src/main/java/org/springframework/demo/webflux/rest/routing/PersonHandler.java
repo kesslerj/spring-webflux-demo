@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package org.springframework.demo.webflux;
-
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
+package org.springframework.demo.webflux.rest.routing;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromObject;
+
+import org.springframework.demo.webflux.persistence.Person;
+import org.springframework.demo.webflux.persistence.PersonRepository;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class PersonHandler {
 
@@ -40,7 +42,6 @@ public class PersonHandler {
 				.flatMap(person -> ServerResponse.ok().contentType(APPLICATION_JSON).body(fromObject(person)))
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
-
 
 	public Mono<ServerResponse> savePerson(ServerRequest request) {
 		Mono<Person> person = request.bodyToMono(Person.class);
