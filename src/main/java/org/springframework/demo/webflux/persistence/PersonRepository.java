@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono;
 
 public interface PersonRepository {
 
-	Mono<Person> getPerson(int id);
+	Mono<Person> getPerson(Mono<Integer> id);
 
 	Flux<Person> allPeople();
 

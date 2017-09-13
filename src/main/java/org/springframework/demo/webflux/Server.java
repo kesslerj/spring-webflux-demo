@@ -47,10 +47,21 @@ public class Server {
 	public static void main(String[] args) throws Exception {
 		Server server = new Server();
 
-		// HttpHandler httpHandler = server.applicationContext(RoutingConfiguration.class);
+		/*
+		 * Three different ways to initialize:
+		 * - ControllerConfiguration: Spring Context + request processing with PersonController
+		 * - RoutingConfiguration: Spring Context + request processing with RouterFunction
+		 * - standalone: get HttpHandler directly from RouterFunction, no Spring Context
+		 */
 		HttpHandler httpHandler = server.applicationContext(ControllerConfiguration.class);
+		// HttpHandler httpHandler = server.applicationContext(RoutingConfiguration.class);
 		// HttpHandler httpHandler = server.standalone();
 
+		/*
+		 * Two different servers to choose
+		 * - Reactor Netty
+		 * - Tomcat
+		 */
 		server.startReactorServer(httpHandler);
 //		server.startTomcatServer(httpHandler);
 

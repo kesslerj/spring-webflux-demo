@@ -19,6 +19,7 @@
 
 package org.springframework.demo.webflux.persistence;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,8 +36,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class DummyPersonRepository implements PersonRepository {
 
-	private static final Log logger = LogFactory.getLog(DummyPersonRepository.class);
-
+	private static final Log LOGGER = LogFactory.getLog(DummyPersonRepository.class);
 
 	private final Map<Integer, Person> people = new HashMap<>();
 
@@ -46,21 +46,40 @@ public class DummyPersonRepository implements PersonRepository {
 	}
 
 	@Override
-	public Mono<Person> getPerson(int id) {
-		return Mono.justOrEmpty(this.people.get(id));
+	public Mono<Person> getPerson(Mono<Integer> id) {
+		return id.map(i -> actualGet(i));
 	}
 
 	@Override
 	public Flux<Person> allPeople() {
-		return Flux.fromIterable(this.people.values());
+		// TODO: call to map is executed directly because it is "the start of the chain"
+		// is this because this repo is too dummy?
+		// how does a "real" repo do this?
+
+		return Flux.fromIterable(actualGetAll());
 	}
+
 
 	@Override
 	public Mono<Void> savePerson(Mono<Person> personMono) {
 		return personMono.doOnNext(person -> {
-			int id = people.size() + 1;
-			this.people.put(id, person);
-			logger.info(String.format("Saved %s with id %d%n", person, id));
+			actualSave(person);
 		}).thenEmpty(Mono.empty());
+	}
+
+	private Person actualGet(int id) {
+		LOGGER.info("actualGet - NOW we access the data");
+		return this.people.get(id);
+	}
+
+	private Collection<Person> actualGetAll() {
+		LOGGER.info("actualGetAll - NOW we access the data");
+		return this.people.values();
+	}
+
+	private void actualSave(Person person) {
+		int id = people.size() + 1;
+		this.people.put(id, person);
+		LOGGER.info(String.format("Saved %s with id %d%n", person, id));
 	}
 }

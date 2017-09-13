@@ -21,7 +21,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 public class PersonRouter {
 
 	public static RouterFunction<ServerResponse> routerFunction(PersonHandler handler) {
-		return nest(path("/person"),
+		return nest(path("/persons"),
 				nest(accept(APPLICATION_JSON),
 						route(GET("/{id}"), handler::getPerson)
 								.andRoute(method(HttpMethod.GET), handler::allPeople))

@@ -1,5 +1,7 @@
 package org.springframework.demo.webflux.rest.controller;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.demo.webflux.persistence.Person;
 import org.springframework.demo.webflux.persistence.PersonRepository;
 import org.springframework.http.HttpStatus;
@@ -17,8 +19,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/person")
+@RequestMapping("/persons")
 public class PersonController {
+
+	private static final Log LOGGER = LogFactory.getLog(PersonController.class);
 
 	private final PersonRepository repository;
 
@@ -28,24 +32,37 @@ public class PersonController {
 
 	@GetMapping
 	public Flux<Person> allPeople() {
-		return this.repository.allPeople();
+		// TODO: not sure if correct, compare comment in repo method
+
+		LOGGER.info("GET /persons incoming");
+		Flux<Person> allPeople = this.repository.allPeople();
+		LOGGER.info("GET /persons returning");
+		return allPeople;
 	}
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Mono<Void> savePerson(@RequestBody Mono<Person> personMono) {
-		System.out.println("POST in controller");
-		return this.repository.savePerson(personMono);
+		LOGGER.info("POST /persons incoming");
+		Mono<Void> mono = this.repository.savePerson(personMono);
+		LOGGER.info("POST /persons returning");
+		return mono;
 	}
 
 	@GetMapping("/{id}")
-	public Mono<Person> getPerson(@PathVariable int id) {
-		return this.repository.getPerson(id)
+	public Mono<Person> getPerson(@PathVariable Integer id) {
+		// imho pathvariable lacks reactiveness, as it is not wrapped in a reactive type like Requestbody above
+		// but very probably because otherwise the mapping to this method is not possible
+
+		LOGGER.info("GET /persons/{id} incoming");
+		Mono<Person> mono = this.repository.getPerson(Mono.justOrEmpty(id))
 				.switchIfEmpty(Mono.error(new NotFoundException()));
+		LOGGER.info("GET /persons/{id} returning");
+		return mono;
 	}
 
-	@ExceptionHandler
+	@ExceptionHandler(NotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	public void handle(NotFoundException ex) {
+	public void handle() {
 
 	}
 

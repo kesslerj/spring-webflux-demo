@@ -22,6 +22,8 @@ package org.springframework.demo.webflux.rest.routing;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.demo.webflux.persistence.Person;
 import org.springframework.demo.webflux.persistence.PersonRepository;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -32,6 +34,8 @@ import reactor.core.publisher.Mono;
 
 public class PersonHandler {
 
+	private static final Log LOGGER = LogFactory.getLog(PersonHandler.class);
+
 	private final PersonRepository repository;
 
 	public PersonHandler(PersonRepository repository) {
@@ -39,21 +43,31 @@ public class PersonHandler {
 	}
 
 	public Mono<ServerResponse> getPerson(ServerRequest request) {
-		int personId = Integer.valueOf(request.pathVariable("id"));
+		Mono<Integer> personId = Mono.just(Integer.valueOf(request.pathVariable("id")));
 		Mono<Person> personMono = this.repository.getPerson(personId);
-		return personMono
+		LOGGER.info("getPerson - after calling repository");
+		Mono<ServerResponse> response = personMono
 				.flatMap(person -> ServerResponse.ok().contentType(APPLICATION_JSON).body(fromObject(person)))
 				.switchIfEmpty(ServerResponse.notFound().build());
+		LOGGER.info("getPerson - after creating response");
+		return response;
 	}
 
 	public Mono<ServerResponse> savePerson(ServerRequest request) {
 		Mono<Person> person = request.bodyToMono(Person.class);
-		return ServerResponse.ok().build(this.repository.savePerson(person));
+		Mono<Void> savePerson = this.repository.savePerson(person);
+		LOGGER.info("savePerson - after calling repository");
+		Mono<ServerResponse> response = ServerResponse.ok().build(savePerson);
+		LOGGER.info("savePerson - after creating response");
+		return response;
 	}
 
 	public Mono<ServerResponse> allPeople(ServerRequest request) {
 		Flux<Person> people = this.repository.allPeople();
-		return ServerResponse.ok().contentType(APPLICATION_JSON).body(people, Person.class);
+		LOGGER.info("allPeople - after calling repository");
+		Mono<ServerResponse> response = ServerResponse.ok().contentType(APPLICATION_JSON).body(people, Person.class);
+		LOGGER.info("allPeople - after creating response");
+		return response;
 	}
 
 }
