@@ -14,10 +14,11 @@ It mainly consists of the following types:
 | `Server`                | Contains a `main` method to start the server  |
 
 ### Spring Context - or not
-In the main method in `Server` there are three ways to start the application:
+In the main method in `Server` there are four ways to start the application:
 1. __`ControllerConfiguration`__: Spring Context + request processing with `PersonController`
 2. __`RoutingConfiguration`__: Spring Context + request processing with `RouterFunction`
-3. __standalone__: get HttpHandler directly from RouterFunction, no Spring Context
+3. __'functionalBeanRegistration`__: Same as first one, but with new programmatic way to register beans
+4. __standalone__: get HttpHandler directly from RouterFunction, no Spring Context
 
 Additionally you can choose with what server to start, see the next two points.
 

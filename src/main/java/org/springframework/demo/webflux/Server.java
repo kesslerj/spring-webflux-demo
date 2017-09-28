@@ -25,9 +25,10 @@ import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.demo.webflux.config.ControllerConfiguration;
+import org.springframework.demo.webflux.config.WebFluxOnlyConfiguration;
 import org.springframework.demo.webflux.persistence.DummyPersonRepository;
 import org.springframework.demo.webflux.persistence.PersonRepository;
+import org.springframework.demo.webflux.rest.controller.PersonController;
 import org.springframework.demo.webflux.rest.routing.PersonHandler;
 import org.springframework.demo.webflux.rest.routing.PersonRouter;
 import org.springframework.http.server.reactive.HttpHandler;
@@ -53,9 +54,10 @@ public class Server {
 		 * - RoutingConfiguration: Spring Context + request processing with RouterFunction
 		 * - standalone: get HttpHandler directly from RouterFunction, no Spring Context
 		 */
-		HttpHandler httpHandler = server.applicationContext(ControllerConfiguration.class);
+		// HttpHandler httpHandler = server.applicationContext(ControllerConfiguration.class);
 		// HttpHandler httpHandler = server.applicationContext(RoutingConfiguration.class);
 		// HttpHandler httpHandler = server.standalone();
+		HttpHandler httpHandler = server.functionalBeanRegistration();
 
 		/*
 		 * Two different servers to choose
@@ -92,6 +94,17 @@ public class Server {
 
 		RouterFunction<?> route = PersonRouter.routerFunction(handler);
 		return toHttpHandler(route);
+	}
+
+	public HttpHandler functionalBeanRegistration() {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(WebFluxOnlyConfiguration.class);
+
+		ctx.registerBean(DummyPersonRepository.class);
+		ctx.registerBean(PersonController.class,
+				() -> new PersonController(ctx.getBean(PersonRepository.class)));
+
+
+		return WebHttpHandlerBuilder.applicationContext(ctx).build();
 	}
 
 	public HttpHandler applicationContext(Class configurationClass) {

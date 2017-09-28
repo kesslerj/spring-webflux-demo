@@ -13,7 +13,7 @@ import org.springframework.web.reactive.config.EnableWebFlux;
  */
 @Configuration
 @EnableWebFlux
-public class ControllerConfiguration {
+public class WebFluxOnlyConfiguration {
 
 	@Bean
 	public PersonRepository repository() {
