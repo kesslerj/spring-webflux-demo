@@ -1,7 +1,7 @@
 # Spring 5 Functional Web Framework Sample
 
 This repository contains a sample application that uses the functional web framework introduced in Spring 5.
-It consists of the following types:
+It mainly consists of the following types:
 
 | Class                   | Description                                   |
 | ----------------------- | --------------------------------------------- |
